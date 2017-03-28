@@ -1,0 +1,24 @@
+extends layout
+
+mixin link(href, name)
+  a(href=href)&attributes(attributes)= name
+mixin button(type, name)
+  button(type=type)&attributes(attributes)= name
+mixin input(type)
+  input(type=type)&attributes(attributes)
+
+block content
+  h1= title
+  div.container-fluid.log-viewer-container
+    div.row.log-viewer-header
+      div.col-9: +input("text")(class="form-control", placeholder="/path/to/file")
+      div.col-3: +button("button", "View")(class="btn btn-fit btn-primary")
+    div.row.log-viewer-body
+      ul
+        each item, i in items
+          li(data-age="#{item.age}")= item.name
+    div.row.log-viewer-footer
+      div.col-3: +link("javascript:;", "|<")(class="btn btn-fit btn-default", title="Go to beginner")
+      div.col-3: +link("javascript:;", "<")(class="btn btn-fit btn-default", title="Previous")
+      div.col-3: +link("javascript:;", ">")(class="btn btn-fit btn-default", title="Next")
+      div.col-3: +link("javascript:;", ">|")(class="btn btn-fit btn-default", title="Go to end")
