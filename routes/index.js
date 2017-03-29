@@ -1,56 +1,30 @@
 var express = require('express');
 var router = express.Router();
-// var path = require('path');
-// var os = require('os');
 
-var helper = require("../helper");
+/* Initial library */
+var sluffer = require("../sluffer");
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  //var path = "";
-  // var page = 1;
-  // var string = os.homedir();
-  // var fs = require("fs");
-  // // Asynchronous read
-  // // fs.readFile(path.join(__dirname, 'file.log'), function (err, data) {
-  // fs.readFile('/Users/Lahphim/IdeaProjects/log-file-viewer/routes/file.log', function (err, data) {
-  //   if (err) {
-  //       return console.error(err);
-  //   }
-  //   console.log("Asynchronous read: " + data.toString());
-  // });
+router.get("/", function(req, res, next) {
+  res.render("index", {
+    title: "Log File Viewer",
+    response: { message: "Insert log path." }
+  });
+});
 
-  // clone object from object template
-  var response = JSON.parse(JSON.stringify(helper.responseTemplate));
-  var path = "/Users/Lahphim/IdeaProjects/log-file-viewer/routes/file.log";
+router.post("/getloglines", function(req, res, next) {
+  // var path = req.body.path !== undefined ? req.body.path : "/Users/Lahphim/IdeaProjects/log-file-viewer/routes/file.log";
+  var path = req.body.path !== undefined ? req.body.path : "";
+  var page = req.body.page !== undefined ? (parseInt(req.body.page) > 0 ? parseInt(req.body.page) : 0) : 1;
+  var limit = 10;
 
-  if(helper.isAbsolutePath(path)) {
-    helper.checkFileExist(path, function(error, isFile) {
-      if(isFile) {
-        response.message = "File exist.";
-
-        var lineReader = require('readline').createInterface({
-          input: require('fs').createReadStream(path)
-        });
-
-        lineReader.on('line', function (line) {
-          console.log('Line from file:', line);
-        });
-      } else {
-        response.message = "File not exist.";
-      }
-
-      res.render("index", {
-        title: "Log File Viewer",
+  if (req.xhr) {
+    sluffer(path, { page: page, limit: limit }, function(response) {
+      res.render("loglinepartial", {
+        page: page,
+        limit: limit,
         response: response
       });
-    });
-  } else {
-    response.message = "Invalid input path.";
-
-    res.render("index", {
-      title: "Log File Viewer",
-      response: response
     });
   }
 });
