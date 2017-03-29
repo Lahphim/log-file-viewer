@@ -22,7 +22,7 @@ module.exports = function (path, opts, callback) {
   // clone object from object template
   var response = JSON.parse(JSON.stringify(responseTemplate));
 
-  if (isAbsolutePath(path)) {
+  if (isValidPath(path)) {
     checkFileExist(path, function (err, isFile) {
       if (err) {
         response.message = "File error.";
@@ -36,11 +36,11 @@ module.exports = function (path, opts, callback) {
               callback(response);
             } else {
               var buffer = new Buffer(opts.buffersize);
-              processBuffer(fd, buffer, 0, opts.page, 0, [], opts.totail, function(err, lines) {
+              processBuffer(fd, buffer, 0, 1, opts.page, 0, [], opts.totail, function(err, lines, page) {
                 response.status = true;
                 response.message = "Successfully.";
                 response.data = lines;
-                callback(response);
+                callback(response, page);
               });
             }
           });
@@ -56,9 +56,9 @@ module.exports = function (path, opts, callback) {
   }
 };
 
-function isAbsolutePath (path){
+function isValidPath (path){
   // return /^\/.*(.log)$/.test(path);
-  return /^\/.*/.test(path);
+  return /\/.+/.test(path);
 }
 
 function checkFileExist (file, callback) {
@@ -80,13 +80,13 @@ function openFile (path, opts, callback) {
   });
 }
 
-function processBuffer (fd, buffer, offset, page, pointer, lines, totail, callback) {
+function processBuffer (fd, buffer, offset, fromPage, toPage, pointer, lines, totail, callback) {
   fs.read(fd, buffer, 0, buffer.length, offset, function (err, bytesRead, buff) {
     if (err) {
       callback("Cannot process file.", []);
     } else {
       for (var i=0; i<bytesRead; i++) {
-        if(page > 0) {
+        if(fromPage <= toPage || totail) {
           if(pointer < 10) {
             // 0x0a = New Line
             if (buff[i] === 0x0a) {
@@ -99,7 +99,7 @@ function processBuffer (fd, buffer, offset, page, pointer, lines, totail, callba
               lines[pointer].push(buff[i]);
             }
           } else {
-            page--;
+            fromPage++;
             pointer = 0;
             i--;
           }
@@ -109,17 +109,26 @@ function processBuffer (fd, buffer, offset, page, pointer, lines, totail, callba
       }
 
       if(bytesRead < buff.length) {
-        if(pointer < 10 && page > 0) {
-          if(page-1 === 0) {
+        var atPage = toPage;
+
+        if(totail) {
             lines.splice(pointer);
-          } else {
-            lines = [];
+            atPage = fromPage;
+        } else {
+          if (pointer < 10 && (fromPage <= toPage)) {
+            if (fromPage === toPage) {
+              lines.splice(pointer);
+              atPage = fromPage;
+            } else {
+              lines = [];
+              atPage = fromPage + 1;
+            }
           }
         }
 
-        callback(null, lines);
+        callback(null, lines, atPage);
       } else {
-        processBuffer(fd, buffer, offset + bytesRead, page, pointer, lines, totail, callback);
+        processBuffer(fd, buffer, offset + bytesRead, fromPage, toPage, pointer, lines, totail, callback);
       }
     }
   });

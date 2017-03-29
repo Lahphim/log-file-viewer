@@ -49,6 +49,9 @@ $(function() {
   });
 
   $("#tail-btn").click(function() {
-
+    getLogLine({
+      path: $("#path-field").val(),
+      totail: true
+    });
   });
 });
