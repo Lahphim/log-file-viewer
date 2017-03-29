@@ -21,8 +21,6 @@ router.post("/getloglines", function(req, res, next) {
 
   if (req.xhr) {
     sluffer(path, { page: page, limit: limit, totail: totail }, function(response, page) {
-      console.log(response.data);
-      console.log(page);
       res.render("loglinepartial", {
         page: page,
         limit: limit,
