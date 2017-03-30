@@ -11,8 +11,7 @@ block content
   // h1= title
   div.container-fluid.log-viewer-container
     div.row.log-viewer-header
-      //- div.col-9: +input("text")(id="path-field", class="form-control", placeholder="/path/to/file", value="/Users/Lahphim/IdeaProjects/log-file-viewer/routes/file.log")
-      div.col-9: +input("text")(id="path-field", class="form-control", placeholder="/path/to/file", value="C:\\Users\\icarus\\Documents\\My Web Sites\\log-file-viewer_TEMP\\routes\\file.log")
+      div.col-9: +input("text")(id="path-field", class="form-control", placeholder="./path/to/file")
       div.col-3: +button("button", "View")(id="view-btn", class="btn btn-fit btn-primary")
     div.row.log-viewer-body
       div.col-12(id="dynamic-container")

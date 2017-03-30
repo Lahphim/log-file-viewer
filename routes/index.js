@@ -16,7 +16,6 @@ router.get("/", function(req, res, next) {
 });
 
 router.post("/getloglines", function(req, res, next) {
-  // var path = req.body.path !== undefined ? req.body.path : "/Users/Lahphim/IdeaProjects/log-file-viewer/routes/file.log";
   var path = req.body.path !== undefined ? req.body.path : "";
   var page = req.body.page !== undefined ? (parseInt(req.body.page) > 0 ? parseInt(req.body.page) : 0) : 1;
   var totail = req.body.totail !== undefined ? req.body.totail : false;
