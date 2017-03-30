@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
+var setting = require("../setting");
+var reqpath = require('path');
+
 /* Initial library */
 var sluffer = require("../sluffer");
 
@@ -20,14 +23,22 @@ router.post("/getloglines", function(req, res, next) {
   var limit = 10;
 
   if (req.xhr) {
-    sluffer(path, { page: page, limit: limit, totail: totail }, function(response, page) {
-      res.render("loglinepartial", {
-        page: page,
-        limit: limit,
-        response: response
-      });
-    });
+    sluffer(
+      isAbsolutePath(path) ? reqpath.join(setting.PROJECT_DIR, path) : path, // check absolute path or not ?
+      { page: page, limit: limit, totail: totail },
+      function(response, page) {
+        res.render("loglinepartial", {
+          page: page,
+          limit: limit,
+          response: response
+        });
+      }
+    );
   }
 });
+
+function isAbsolutePath (path) {
+  return /^(\.){0,2}(\\|\/).*/.test(path);
+}
 
 module.exports = router;

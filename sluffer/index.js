@@ -22,44 +22,34 @@ module.exports = function (path, opts, callback) {
   // clone object from object template
   var response = JSON.parse(JSON.stringify(responseTemplate));
 
-  //if (isValidPath(path)) {
-    checkFileExist(path, function (err, isFile) {
-      if (err) {
-        response.message = "File error.";
-        callback(response);
+  checkFileExist(path, function (err, isFile) {
+    if (err) {
+      response.message = "File error.";
+      callback(response);
+    } else {
+      if (isFile) {
+        response.message = "File exist.";
+        openFile(path, opts, function(err, fd) {
+          if (err) {
+            response.message = "Cannot open file.";
+            callback(response);
+          } else {
+            var buffer = new Buffer(opts.buffersize);
+            processBuffer(fd, buffer, 0, 1, opts.page, 0, [], opts.totail, function(err, lines, page) {
+              response.status = true;
+              response.message = "Successfully.";
+              response.data = lines;
+              callback(response, page);
+            });
+          }
+        });
       } else {
-        if (isFile) {
-          response.message = "File exist.";
-          openFile(path, opts, function(err, fd) {
-            if (err) {
-              response.message = "Cannot open file.";
-              callback(response);
-            } else {
-              var buffer = new Buffer(opts.buffersize);
-              processBuffer(fd, buffer, 0, 1, opts.page, 0, [], opts.totail, function(err, lines, page) {
-                response.status = true;
-                response.message = "Successfully.";
-                response.data = lines;
-                callback(response, page);
-              });
-            }
-          });
-        } else {
-          response.message = "File not exist.";
-          callback(response);
-        }
+        response.message = "File not exist.";
+        callback(response);
       }
-    });
-  // } else {
-  //   response.message = "Invalid input path.";
-  //   callback(response);
-  // }
+    }
+  });
 };
-
-// function isValidPath (path){
-//   // return /^\/.*(.log)$/.test(path);
-//   return /\/.+/.test(path);
-// }
 
 function checkFileExist (file, callback) {
   fs.stat(file, function fsStat(err, stats) {
