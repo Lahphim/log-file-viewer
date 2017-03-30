@@ -35,7 +35,7 @@ module.exports = function (path, opts, callback) {
             callback(response);
           } else {
             var buffer = new Buffer(opts.buffersize);
-            processBuffer(fd, buffer, 0, 1, opts.page, 0, [], opts.totail, function(err, lines, page) {
+            processBuffer(fd, buffer, 0, 1, opts.page, 0, [], opts.limit, opts.totail, function(err, lines, page) {
               response.status = true;
               response.message = "Successfully.";
               response.data = lines;
@@ -70,14 +70,14 @@ function openFile (path, opts, callback) {
   });
 }
 
-function processBuffer (fd, buffer, offset, fromPage, toPage, pointer, lines, totail, callback) {
+function processBuffer (fd, buffer, offset, fromPage, toPage, pointer, lines, limit, totail, callback) {
   fs.read(fd, buffer, 0, buffer.length, offset, function (err, bytesRead, buff) {
     if (err) {
       callback("Cannot process file.", []);
     } else {
       for (var i=0; i<bytesRead; i++) {
         if(fromPage <= toPage || totail) {
-          if(pointer < 10) {
+          if(pointer < limit) {
             // 0x0a = New Line
             if (buff[i] === 0x0a) {
               lines[pointer] = Buffer(lines[pointer]).toString();
@@ -105,7 +105,7 @@ function processBuffer (fd, buffer, offset, fromPage, toPage, pointer, lines, to
             lines.splice(pointer);
             atPage = fromPage;
         } else {
-          if (pointer < 10 && (fromPage <= toPage)) {
+          if (pointer < limit && (fromPage <= toPage)) {
             if (fromPage === toPage) {
               lines.splice(pointer);
               atPage = fromPage;
@@ -121,7 +121,7 @@ function processBuffer (fd, buffer, offset, fromPage, toPage, pointer, lines, to
 
         callback(null, lines, atPage);
       } else {
-        processBuffer(fd, buffer, offset + bytesRead, fromPage, toPage, pointer, lines, totail, callback);
+        processBuffer(fd, buffer, offset + bytesRead, fromPage, toPage, pointer, lines, limit, totail, callback);
       }
     }
   });

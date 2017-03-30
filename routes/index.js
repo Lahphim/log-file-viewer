@@ -22,19 +22,17 @@ router.post("/getloglines", function(req, res, next) {
   var totail = req.body.totail !== undefined ? req.body.totail : false;
   var limit = 10;
 
-  if (req.xhr) {
-    sluffer(
-      isAbsolutePath(path) ? reqpath.join(setting.PROJECT_DIR, path) : path, // check absolute path or not ?
-      { page: page, limit: limit, totail: totail },
-      function(response, page) {
-        res.render("loglinepartial", {
-          page: page,
-          limit: limit,
-          response: response
-        });
-      }
-    );
-  }
+  sluffer(
+    isAbsolutePath(path) ? reqpath.join(setting.PROJECT_DIR, path) : path, // check absolute path or not ?
+    { page: page, limit: limit, totail: totail },
+    function(response, page) {
+      res.render("loglinepartial", {
+        page: page,
+        limit: limit,
+        response: response
+      });
+    }
+  );
 });
 
 function isAbsolutePath (path) {
