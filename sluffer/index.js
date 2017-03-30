@@ -22,7 +22,7 @@ module.exports = function (path, opts, callback) {
   // clone object from object template
   var response = JSON.parse(JSON.stringify(responseTemplate));
 
-  if (isValidPath(path)) {
+  //if (isValidPath(path)) {
     checkFileExist(path, function (err, isFile) {
       if (err) {
         response.message = "File error.";
@@ -50,16 +50,16 @@ module.exports = function (path, opts, callback) {
         }
       }
     });
-  } else {
-    response.message = "Invalid input path.";
-    callback(response);
-  }
+  // } else {
+  //   response.message = "Invalid input path.";
+  //   callback(response);
+  // }
 };
 
-function isValidPath (path){
-  // return /^\/.*(.log)$/.test(path);
-  return /\/.+/.test(path);
-}
+// function isValidPath (path){
+//   // return /^\/.*(.log)$/.test(path);
+//   return /\/.+/.test(path);
+// }
 
 function checkFileExist (file, callback) {
   fs.stat(file, function fsStat(err, stats) {
@@ -123,6 +123,9 @@ function processBuffer (fd, buffer, offset, fromPage, toPage, pointer, lines, to
               lines = [];
               atPage = fromPage + 1;
             }
+          } else if(fromPage < toPage) {
+            lines = [];
+            atPage = fromPage + 1;
           }
         }
 

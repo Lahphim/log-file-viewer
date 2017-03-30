@@ -20,6 +20,15 @@ function getLogLine(params) {
 }
 
 $(function() {
+  $("#path-field").keyup(function (e) {
+      if (e.keyCode == 13) {
+        getLogLine({
+          path: $("#path-field").val(),
+          page: 1
+        });
+      }
+  });
+
   $("#view-btn").click(function() {
     getLogLine({
       path: $("#path-field").val(),
